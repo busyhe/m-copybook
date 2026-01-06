@@ -13,11 +13,14 @@
   },
   "dependencies": {
     "@workspace/ui": "workspace:*",
+    "hanzi-writer": "^3.7.3",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "next-themes": "catalog:",
+    "pinyin-pro": "^3.27.0",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@types/node": "catalog:",
