@@ -66,6 +66,7 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
 
     const drawRow = (y: number, charData?: CharacterData) => {
       let localY = y
+      const { insertEmptyCol } = settings
 
       if (showStroke) {
         const maxSteps = maxCells * 2
@@ -92,7 +93,10 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
           const cx = startX + i * cellSizePx
           const isTrace = i > 0 // Main char is 0
           engine.drawGrid(cx, localY, cellSizePx, pinyinHeightPx, 'pinyin')
-          if (charData?.selectedPinyin) {
+
+          const isGap = insertEmptyCol && i > 0 && i % 2 !== 0
+
+          if (!isGap && charData?.selectedPinyin) {
             engine.drawText(charData.selectedPinyin, cx, localY - 2, cellSizePx, pinyinHeightPx, {
               color: isTrace ? '#97A2B6' : '#000000',
               fontSize: cellSizePx * 0.3,
@@ -107,7 +111,10 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
         const cx = startX + i * cellSizePx
         const isTrace = i > 0
         engine.drawGrid(cx, localY, cellSizePx, cellSizePx, settings.gridType)
-        if (charData?.char) {
+
+        const isGap = insertEmptyCol && i > 0 && i % 2 !== 0
+
+        if (!isGap && charData?.char) {
           engine.drawText(charData.char, cx, localY, cellSizePx, cellSizePx, {
             color: isTrace ? settings.traceColor : settings.highlightFirst ? '#000000' : settings.traceColor
           })
