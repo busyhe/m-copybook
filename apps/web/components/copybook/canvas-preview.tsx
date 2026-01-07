@@ -115,8 +115,19 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
         const isGap = insertEmptyCol && i > 0 && i % 2 !== 0
 
         if (!isGap && charData?.char) {
-          engine.drawText(charData.char, cx, localY, cellSizePx, cellSizePx, {
-            color: isTrace ? settings.traceColor : settings.highlightFirst ? '#000000' : settings.traceColor
+          const charFontSize = cellSizePx * (settings.fontSize / 100)
+          const charYOffset = cellSizePx * (settings.verticalOffset / 100)
+          const fontMap: Record<string, string> = {
+            楷体: '楷体, KaiTi, STKaiti, serif',
+            宋体: '宋体, SimSun, STSong, serif',
+            黑体: '黑体, SimHei, STHeiti, sans-serif'
+          }
+
+          engine.drawText(charData.char, cx, localY + charYOffset, cellSizePx, cellSizePx, {
+            color: isTrace ? settings.traceColor : settings.highlightFirst ? '#000000' : settings.traceColor,
+            fontFamily: fontMap[settings.fontFamily] || settings.fontFamily,
+            fontWeight: settings.fontWeight,
+            fontSize: charFontSize
           })
         }
       }
