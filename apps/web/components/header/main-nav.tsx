@@ -6,10 +6,10 @@ import { Logo } from '@/components/logo'
 
 export function MainNav() {
   return (
-    <div className="mr-4 hidden md:flex items-center gap-4 lg:gap-6">
+    <div className="mr-4 md:flex items-center gap-4 lg:gap-6">
       <Link href="/" className="mr-4 flex items-center gap-2">
         <Logo className="size-6 rounded-sm" />
-        <span className="hidden font-bold lg:inline-block">汉字字帖</span>
+        <span className="font-bold">汉字字帖</span>
       </Link>
       {/* <nav className="flex items-center gap-4 text-sm font-medium">
         <Link href="/" className="flex items-center gap-1 transition-colors hover:text-foreground/80">

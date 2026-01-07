@@ -21,6 +21,7 @@ export function SiteHeader() {
                 </Link>
               </Button>
               <ModeSwitcher />
+              {/* TODO: 移动端显示时显示设置按钮，点击弹出配置 */}
             </nav>
           </div>
         </div>
