@@ -95,8 +95,10 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
           engine.drawGrid(cx, localY, cellSizePx, pinyinHeightPx, 'pinyin')
 
           const isGap = insertEmptyCol && i > 0 && i % 2 !== 0
+          const traceIndex = insertEmptyCol ? Math.ceil(i / 2) : i
+          const isWithinTrace = i === 0 || traceIndex <= settings.traceCount
 
-          if (!isGap && charData?.selectedPinyin) {
+          if (!isGap && isWithinTrace && charData?.selectedPinyin) {
             engine.drawText(charData.selectedPinyin, cx, localY - 2, cellSizePx, pinyinHeightPx, {
               color: isTrace ? '#97A2B6' : '#000000',
               fontSize: cellSizePx * 0.3,
@@ -113,8 +115,10 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
         engine.drawGrid(cx, localY, cellSizePx, cellSizePx, settings.gridType)
 
         const isGap = insertEmptyCol && i > 0 && i % 2 !== 0
+        const traceIndex = insertEmptyCol ? Math.ceil(i / 2) : i
+        const isWithinTrace = i === 0 || traceIndex <= settings.traceCount
 
-        if (!isGap && charData?.char) {
+        if (!isGap && isWithinTrace && charData?.char) {
           const charFontSize = cellSizePx * (settings.fontSize / 100)
           const charYOffset = cellSizePx * (settings.verticalOffset / 100)
           const fontMap: Record<string, string> = {

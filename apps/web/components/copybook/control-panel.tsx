@@ -1,6 +1,7 @@
 'use client'
 
 import { useCopybookStore } from '@/hooks/use-copybook-store'
+import { useEffect, useMemo } from 'react'
 import { Button } from '@workspace/ui/components/button'
 import { Label } from '@workspace/ui/components/label'
 import { Switch } from '@workspace/ui/components/switch'
@@ -13,6 +14,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/component
 
 export function ControlPanel() {
   const { settings, setSettings } = useCopybookStore()
+
+  const maxTraceCount = useMemo(() => {
+    const { gridSize, pageMargin, insertEmptyCol } = settings
+    const contentWidthMm = 210 - pageMargin[1] - pageMargin[3]
+    const maxCells = Math.floor(contentWidthMm / gridSize)
+
+    if (maxCells <= 1) return 0
+    return insertEmptyCol ? Math.floor((maxCells - 1) / 2) : maxCells - 1
+  }, [settings])
+
+  useEffect(() => {
+    if (settings.traceCount > maxTraceCount) {
+      setSettings({ traceCount: maxTraceCount })
+    }
+  }, [maxTraceCount, settings.traceCount, setSettings])
 
   const handlePrint = () => {
     window.print()
@@ -260,7 +276,7 @@ export function ControlPanel() {
                 value={[settings.traceCount]}
                 onValueChange={([value]) => setSettings({ traceCount: value })}
                 min={0}
-                max={10}
+                max={maxTraceCount}
                 step={1}
               />
             </div>
