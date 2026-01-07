@@ -147,6 +147,15 @@ export function ControlPanel() {
                 onCheckedChange={(checked) => setSettings({ insertEmptyCol: checked })}
               />
             </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showPageNumber">显示页码</Label>
+              <Switch
+                id="showPageNumber"
+                checked={settings.showPageNumber}
+                onCheckedChange={(checked) => setSettings({ showPageNumber: checked })}
+              />
+            </div>
           </div>
 
           {/* Grid Settings */}

@@ -6,6 +6,7 @@ export interface CopybookSettings {
   highlightFirst: boolean // Highlight first character
   insertEmptyRow: boolean // Insert empty row
   insertEmptyCol: boolean // Insert empty column
+  showPageNumber: boolean // Show page number
 
   // Grid settings
   gridType: 'tian' | 'mi' | 'hui' | 'none' // Tian/Mi/Hui/None
@@ -39,6 +40,7 @@ export const defaultSettings: CopybookSettings = {
   highlightFirst: true,
   insertEmptyRow: false,
   insertEmptyCol: false,
+  showPageNumber: true,
 
   gridType: 'tian',
   gridSize: 17,

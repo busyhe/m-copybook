@@ -157,17 +157,19 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
     }
 
     // Draw Page Number
-    const pageNumText = `- ${pageNumber} / ${totalPages} -`
-    const footerY = engine.mmToPx(297) - mb / 2
+    if (settings.showPageNumber) {
+      const pageNumText = `- ${pageNumber} / ${totalPages} -`
+      const footerY = engine.mmToPx(297) - mb / 2
 
-    // Center alignment calculation
-    const pageWidthPx = engine.mmToPx(210)
-    engine.drawText(pageNumText, 0, footerY - 10, pageWidthPx, 20, {
-      fontSize: 12,
-      color: '#94a3b8',
-      fontFamily: 'sans-serif',
-      textAlign: 'center'
-    })
+      // Center alignment calculation
+      const pageWidthPx = engine.mmToPx(210)
+      engine.drawText(pageNumText, 0, footerY - 10, pageWidthPx, 20, {
+        fontSize: 12,
+        color: '#94a3b8',
+        fontFamily: 'sans-serif',
+        textAlign: 'center'
+      })
+    }
   }, [engine, chars, pageNumber, totalPages, settings, strokeDataMap])
 
   return (
