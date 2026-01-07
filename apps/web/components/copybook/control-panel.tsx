@@ -16,7 +16,7 @@ export function ControlPanel() {
     <div className="w-80 space-y-4">
       <div className="sticky top-20 space-y-4 max-h-[calc(100vh-120px)] overflow-auto pb-10 no-scrollbar">
         {/* Export/Print buttons */}
-        <div className="bg-white rounded-lg shadow-sm p-4 flex gap-2">
+        <div className="bg-white rounded-lg flex gap-2">
           <Button variant="outline" className="flex-1 gap-2 h-9">
             <Download className="size-4" />
             导出

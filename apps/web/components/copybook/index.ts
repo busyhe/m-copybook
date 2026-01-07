@@ -1,6 +1,6 @@
 export { GridCell } from './grid-cell'
 export * from './grid-cell'
-export * from './copybook-preview'
-export * from './control-panel'
+export { CopybookPreview } from './canvas-preview'
+export { ControlPanel } from './control-panel'
 export * from './text-input'
 export * from './stroke-order'

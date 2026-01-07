@@ -1,0 +1,183 @@
+import { CopybookSettings } from '@/types/copybook'
+import HanziWriter from 'hanzi-writer'
+
+export class RenderEngine {
+  ctx: CanvasRenderingContext2D
+  settings: CopybookSettings
+  width: number
+  height: number
+  dpr: number
+
+  constructor(canvas: HTMLCanvasElement, settings: CopybookSettings) {
+    this.ctx = canvas.getContext('2d')!
+    this.dpr = window.devicePixelRatio || 1
+    this.settings = settings
+
+    // Default A4 size at 96 DPI (approx) or purely proportional
+    // A4 is 210mm x 297mm.
+    // We will use a high resolution for internal rendering (e.g. 2x or 3x)
+    // For now, we rely on the canvas dimensions passed in
+    const rect = canvas.getBoundingClientRect()
+    this.width = rect.width
+    this.height = rect.height
+
+    // Scale canvas for high DPI
+    canvas.width = this.width * this.dpr
+    canvas.height = this.height * this.dpr
+    this.ctx.scale(this.dpr, this.dpr)
+  }
+
+  updateSettings(settings: CopybookSettings) {
+    this.settings = settings
+  }
+
+  // Convert mm to pixels based on current canvas width/A4 ratio
+  // A4 width is 210mm.
+  mmToPx(mm: number): number {
+    // We assume the canvas width represents the full page width (210mm)
+    // Unless we want to support specific DPI.
+    // Let's assume the canvas width maps to 210mm for layout purposes
+    const A4_WIDTH_MM = 210
+    return (this.width / A4_WIDTH_MM) * mm
+  }
+
+  clear() {
+    this.ctx.clearRect(0, 0, this.width, this.height)
+    // Draw white background
+    this.ctx.fillStyle = '#ffffff'
+    this.ctx.fillRect(0, 0, this.width, this.height)
+  }
+
+  drawGrid(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    type: CopybookSettings['gridType'] | 'pinyin' | 'rect'
+  ) {
+    const { lineColor, borderColor = '#9ca3af' } = this.settings // Default matching tailwind slate-400 or similar
+    const ctx = this.ctx
+
+    ctx.save()
+    ctx.translate(x, y)
+
+    // Draw box border
+    ctx.strokeStyle = '#64748b' // Slate-500 hardcoded as requested 'formal blue-grey', or use settings
+    // Actually let's use a specific color matching the image
+    const formalBorderColor = '#64748b'
+    ctx.strokeStyle = formalBorderColor
+    ctx.lineWidth = 1
+    ctx.strokeRect(0, 0, width, height)
+
+    // Draw internal lines
+    ctx.beginPath()
+    ctx.strokeStyle = lineColor
+    ctx.lineWidth = 0.5
+    ctx.setLineDash([4, 2]) // dashed
+
+    if (type === 'tian') {
+      ctx.moveTo(0, height / 2)
+      ctx.lineTo(width, height / 2)
+      ctx.moveTo(width / 2, 0)
+      ctx.lineTo(width / 2, height)
+    } else if (type === 'mi') {
+      ctx.moveTo(0, height / 2)
+      ctx.lineTo(width, height / 2)
+      ctx.moveTo(width / 2, 0)
+      ctx.lineTo(width / 2, height)
+      ctx.moveTo(0, 0)
+      ctx.lineTo(width, height)
+      ctx.moveTo(width, 0)
+      ctx.lineTo(0, height)
+    } else if (type === 'hui') {
+      const px = width * 0.25
+      const py = height * 0.25
+      ctx.rect(px, py, width - px * 2, height - py * 2)
+    } else if (type === 'pinyin') {
+      // Pinyin: 4 horizontal lines evenly spaced?
+      // Or 4 lines defining 3 spaces.
+      // Usually heights are equivalent.
+      const h3 = height / 3
+
+      ctx.beginPath()
+      ctx.strokeStyle = lineColor
+      ctx.lineWidth = 0.5
+      ctx.setLineDash([4, 2])
+
+      // Pinyin lines (internal 2 lines)
+      ctx.moveTo(0, h3)
+      ctx.lineTo(width, h3)
+      ctx.moveTo(0, h3 * 2)
+      ctx.lineTo(width, h3 * 2)
+    }
+
+    ctx.stroke()
+    ctx.restore()
+  }
+
+  drawText(
+    char: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    options: {
+      color?: string
+      fontFamily?: string
+      fontSize?: number
+      opacity?: number
+      fontWeight?: string
+    } = {}
+  ) {
+    const {
+      color = '#000000',
+      fontFamily = '楷体, KaiTi, STKaiti',
+      fontSize, // If not provided, calculcate from width
+      opacity = 1,
+      fontWeight = 'normal'
+    } = options
+
+    const ctx = this.ctx
+    ctx.save()
+    ctx.translate(x, y)
+
+    // Default Font size based on cell width if not specified
+    const finalFontSize = fontSize || width * 0.75
+
+    ctx.font = `${fontWeight} ${finalFontSize}px ${fontFamily}`
+    ctx.fillStyle = color
+    ctx.globalAlpha = opacity
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+
+    // Draw in center of the box
+    ctx.fillText(char, width / 2, height / 2)
+
+    ctx.restore()
+  }
+
+  drawStroke(strokes: string[], x: number, y: number, width: number, height: number, color: string = '#ef4444') {
+    if (!strokes || strokes.length === 0) return
+
+    const ctx = this.ctx
+    ctx.save()
+
+    // Use HanziWriter's helper to get the correct transform
+    // padding: 2 seems appropriate
+    const { x: paddingX, y: paddingY, scale } = HanziWriter.getScalingTransform(width, height, 2)
+
+    // transform y = height - paddingY (based on previous testing/docs)
+    const translateY = height - paddingY
+
+    ctx.translate(x + paddingX, y + translateY)
+    ctx.scale(scale, -scale)
+
+    ctx.fillStyle = color
+    strokes.forEach((pathData) => {
+      const p = new Path2D(pathData)
+      ctx.fill(p)
+    })
+
+    ctx.restore()
+  }
+}

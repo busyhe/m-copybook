@@ -51,6 +51,6 @@ export const defaultSettings: CopybookSettings = {
   verticalOffset: 0,
 
   traceCount: 2,
-  traceColor: '#d4d4d8',
+  traceColor: '#97A3B6',
   lineColor: '#d4d4d8'
 }
