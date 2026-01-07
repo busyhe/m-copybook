@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@workspace/ui": "workspace:*",
+    "@next/third-parties": "catalog:",
     "hanzi-writer": "^3.7.3",
     "jspdf": "^4.0.0",
     "lucide-react": "catalog:",

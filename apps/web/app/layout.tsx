@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import '@workspace/ui/globals.css'
 import { Providers } from '@/components/providers'
+import { Analytics } from '@/components/analytics'
 import { fontSans, fontMono, fontPinyin } from '@/lib/fonts'
 import { siteConfig } from '@/config/site'
 
@@ -57,6 +58,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} ${fontPinyin.variable} font-sans antialiased `}>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   )
