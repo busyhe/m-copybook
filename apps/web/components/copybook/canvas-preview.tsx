@@ -73,8 +73,7 @@ export function CopybookPreview() {
 
     engine.clear()
 
-    const { gridSize, rowSpacing, pageMargin, showPinyin, showStroke, traceCount, insertEmptyCol, insertEmptyRow } =
-      settings
+    const { gridSize, rowSpacing, pageMargin, showPinyin, showStroke, insertEmptyRow } = settings
 
     // Convert margin mm to px
     const mt = engine.mmToPx(pageMargin[0])
@@ -83,6 +82,14 @@ export function CopybookPreview() {
 
     const cellSizePx = engine.mmToPx(gridSize)
     const rowSpacingPx = engine.mmToPx(rowSpacing)
+
+    // Calculate dynamic layout
+    // A4 width is 210mm. Content width = 210 - marginL - marginR
+    const contentWidthMm = 210 - pageMargin[1] - pageMargin[3]
+    const contentWidthPx = engine.mmToPx(contentWidthMm)
+
+    // Calculate max cells per row
+    const maxCells = Math.floor(contentWidthPx / cellSizePx)
 
     // Pinyin height
     const pinyinHeightPx = cellSizePx * 0.5
@@ -100,31 +107,18 @@ export function CopybookPreview() {
       let blockHeight = cellSizePx // Main grid
       if (showPinyin) blockHeight += pinyinHeightPx
       if (showStroke) blockHeight += strokeHeightPx
-      // Only add gap AFTER the whole block, or if it is the last block?
-      // Usually rows are connected?
-      // If we want a TABLE of characters (rows connected to rows), we should remove rowSpacing from blockHeight and handle it differently?
-      // But typically copybooks have some gap between character LINES.
-      // The reference image shows one line.
-      // Let's keep `rowSpacingPx` as gap between characters lines.
       blockHeight += rowSpacingPx
 
       // Prepare cells row
       const cells: { char?: string; isTrace?: boolean; isFirst?: boolean; isEmpty?: boolean }[] = []
 
       // 1. Main char
-      cells.push({ char: charData.char, isTrace: false, isFirst: index === 0 })
+      cells.push({ char: charData.char, isTrace: false, isFirst: true })
 
-      // 2. Traces
-      for (let i = 0; i < traceCount; i++) {
+      // 2. Traces - Auto fill rest of logic
+      const cellsToFill = maxCells - 1
+      for (let i = 0; i < cellsToFill; i++) {
         cells.push({ char: charData.char, isTrace: true })
-      }
-
-      // 3. Empty col
-      if (insertEmptyCol) cells.push({ isEmpty: true })
-
-      // 4. Fill to 8 cells max
-      while (cells.length < 8) {
-        cells.push({ isEmpty: true })
       }
 
       // Draw Block
@@ -132,11 +126,11 @@ export function CopybookPreview() {
 
       // 1. Draw Stroke Order
       if (showStroke) {
-        // Draw 12 steps roughly matching width?
-        // Let's stick to 12 small boxes for now as per previous logic, but TIGHTLY packed.
-        const maxSteps = 12
+        // Aligned with main cells: 2 stroke steps per cell width
+        const maxSteps = maxCells * 2
+
         for (let s = 0; s < maxSteps; s++) {
-          const sx = startX + s * strokeHeightPx // No gap
+          const sx = startX + s * strokeHeightPx
 
           // Draw rect for stroke box
           engine.drawGrid(sx, localY, strokeHeightPx, strokeHeightPx, 'rect')

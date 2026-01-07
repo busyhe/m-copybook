@@ -43,7 +43,7 @@ export const defaultSettings: CopybookSettings = {
   gridType: 'tian',
   gridSize: 17,
   rowSpacing: 2,
-  pageMargin: [36, 36, 36, 36],
+  pageMargin: [10, 10, 10, 10],
 
   fontFamily: '楷体',
   fontWeight: 'normal',
