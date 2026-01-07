@@ -95,8 +95,8 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
           if (charData.selectedPinyin) {
             engine.drawText(charData.selectedPinyin, cx, localY, cellSizePx, pinyinHeightPx, {
               color: isTrace ? '#97A2B6' : '#000000',
-              fontSize: cellSizePx * 0.4,
-              fontFamily: 'serif'
+              fontSize: cellSizePx * 0.3,
+              fontFamily: 'Arial'
             })
           }
         }
@@ -159,8 +159,14 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
   }, [engine, chars, pageNumber, totalPages, settings, strokeDataMap])
 
   return (
-    <div className="mx-auto bg-white shadow-xl min-h-[1122px] w-[794px] relative mb-8 last:mb-0">
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} width={794} height={1123} />
+    <div className="mx-auto bg-white shadow-xl min-h-[1122px] w-[794px] relative mb-8 last:mb-0 print-page-break">
+      <canvas
+        ref={canvasRef}
+        className="copybook-page-canvas"
+        style={{ width: '100%', height: '100%' }}
+        width={794}
+        height={1123}
+      />
     </div>
   )
 }
@@ -247,7 +253,7 @@ export function CopybookPreview() {
   }, [characters, settings])
 
   return (
-    <div className="flex-1 overflow-auto bg-slate-100/50 p-10 min-h-0 custom-scrollbar">
+    <div className="flex-1 overflow-auto bg-slate-100/50 p-10 min-h-0 custom-scrollbar preview-container">
       <div ref={containerRef} className="flex flex-col items-center">
         {pages.map((pageChars: CharacterData[], idx: number) => (
           <PageCanvas

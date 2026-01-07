@@ -9,9 +9,9 @@ export function MainNav() {
     <div className="mr-4 hidden md:flex items-center gap-4 lg:gap-6">
       <Link href="/" className="mr-4 flex items-center gap-2">
         <Logo className="size-6 rounded-sm" />
-        <span className="hidden font-bold lg:inline-block">Z2H字帖</span>
+        <span className="hidden font-bold lg:inline-block">汉字字帖</span>
       </Link>
-      <nav className="flex items-center gap-4 text-sm font-medium">
+      {/* <nav className="flex items-center gap-4 text-sm font-medium">
         <Link href="/" className="flex items-center gap-1 transition-colors hover:text-foreground/80">
           语文·汉字字帖
           <ChevronDown className="size-3" />
@@ -29,7 +29,7 @@ export function MainNav() {
         <Link href="/" className="transition-colors hover:text-foreground/80">
           控笔练习
         </Link>
-      </nav>
+      </nav> */}
     </div>
   )
 }

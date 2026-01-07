@@ -6,22 +6,73 @@ import { Label } from '@workspace/ui/components/label'
 import { Switch } from '@workspace/ui/components/switch'
 import { Slider } from '@workspace/ui/components/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
-import { Download, Printer } from 'lucide-react'
+import { Printer, FileText, Image as ImageIcon, Download } from 'lucide-react'
 import { TextInput } from './text-input'
+import { jsPDF } from 'jspdf'
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
 
 export function ControlPanel() {
   const { settings, setSettings } = useCopybookStore()
 
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleExportPNG = () => {
+    const canvases = document.querySelectorAll('.copybook-page-canvas') as NodeListOf<HTMLCanvasElement>
+    canvases.forEach((canvas, index) => {
+      const link = document.createElement('a')
+      link.download = `copybook-page-${index + 1}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    })
+  }
+
+  const handleExportPDF = () => {
+    const canvases = document.querySelectorAll('.copybook-page-canvas') as NodeListOf<HTMLCanvasElement>
+    if (canvases.length === 0) return
+
+    // A4 size: [210, 297] in mm
+    const pdf = new jsPDF('p', 'mm', 'a4')
+
+    canvases.forEach((canvas, index) => {
+      const imgData = canvas.toDataURL('image/png')
+      if (index > 0) {
+        pdf.addPage()
+      }
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297)
+    })
+
+    pdf.save('calligraphy-copybook.pdf')
+  }
+
   return (
-    <div className="w-80 space-y-4">
+    <div className="w-80 space-y-4 control-panel-wrapper no-print">
       <div className="sticky top-20 space-y-4 max-h-[calc(100vh-120px)] overflow-auto pb-10 no-scrollbar">
         {/* Export/Print buttons */}
-        <div className="bg-white rounded-lg flex gap-2">
-          <Button variant="outline" className="flex-1 gap-2 h-9">
-            <Download className="size-4" />
-            导出
-          </Button>
-          <Button className="flex-1 gap-2 h-9 bg-[#1e293b] hover:bg-[#1e293b]/90 text-white">
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex-1 gap-2 h-10 border-slate-200">
+                <Download className="size-4" />
+                导出
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-1" align="start">
+              <div className="flex flex-col">
+                <Button variant="ghost" className="justify-start gap-2 h-10 font-normal px-3" onClick={handleExportPDF}>
+                  <FileText className="size-4 text-slate-500" />
+                  导出为PDF
+                </Button>
+                <Button variant="ghost" className="justify-start gap-2 h-10 font-normal px-3" onClick={handleExportPNG}>
+                  <ImageIcon className="size-4 text-slate-500" />
+                  导出为PNG
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Button className="flex-1 gap-2 h-10 bg-[#0f172a] hover:bg-[#0f172a]/90 text-white" onClick={handlePrint}>
             <Printer className="size-4" />
             打印
           </Button>

@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,11 +119,11 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   html {
     @apply scroll-smooth;
   }
-  
+
   body {
     @apply bg-background text-foreground;
   }
@@ -132,7 +132,7 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
-  
+
   /* Custom scrollbar styling. Thanks @pranathiperii. */
   ::-webkit-scrollbar {
     width: 5px;
@@ -147,6 +147,51 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
+  }
+}
+
+@media print {
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  header,
+  footer,
+  [role='banner'],
+  [role='contentinfo'],
+  .no-print,
+  aside,
+  .control-panel-wrapper {
+    display: none !important;
+  }
+
+  main,
+  .container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    border: none !important;
+  }
+
+  .preview-container {
+    padding: 0 !important;
+    background: none !important;
+    overflow: visible !important;
+  }
+
+  .print-page-break {
+    page-break-after: always;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    border: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
   }
 }
 
