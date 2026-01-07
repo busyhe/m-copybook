@@ -30,17 +30,33 @@ export function ControlPanel() {
     }
   }, [maxTraceCount, settings.traceCount, setSettings])
 
+  const getTimestamp = () => {
+    const now = new Date()
+    return (
+      now.getFullYear().toString() +
+      (now.getMonth() + 1).toString().padStart(2, '0') +
+      now.getDate().toString().padStart(2, '0') +
+      now.getHours().toString().padStart(2, '0') +
+      now.getMinutes().toString().padStart(2, '0') +
+      now.getSeconds().toString().padStart(2, '0')
+    )
+  }
+
   const handlePrint = () => {
     window.print()
   }
 
   const handleExportPNG = () => {
     const canvases = document.querySelectorAll('.copybook-page-canvas') as NodeListOf<HTMLCanvasElement>
+    const timestamp = getTimestamp()
     canvases.forEach((canvas, index) => {
-      const link = document.createElement('a')
-      link.download = `copybook-page-${index + 1}.png`
-      link.href = canvas.toDataURL('image/png')
-      link.click()
+      // Use a small delay for each successive page to avoid browser blocking multiple downloads
+      setTimeout(() => {
+        const link = document.createElement('a')
+        link.download = `copybook-${timestamp}-page-${index + 1}.png`
+        link.href = canvas.toDataURL('image/png')
+        link.click()
+      }, index * 200)
     })
   }
 
@@ -59,7 +75,7 @@ export function ControlPanel() {
       pdf.addImage(imgData, 'PNG', 0, 0, 210, 297)
     })
 
-    pdf.save('calligraphy-copybook.pdf')
+    pdf.save(`calligraphy-copybook-${getTimestamp()}.pdf`)
   }
 
   return (
