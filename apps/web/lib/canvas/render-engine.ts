@@ -12,15 +12,17 @@ export class RenderEngine {
     this.settings = settings
     this.dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1
 
+    // Fixed A4 dimensions at 96 DPI
+    this.width = 794
+    this.height = 1123
+
     if (canvas) {
       this.ctx = canvas.getContext('2d')
-      const rect = canvas.getBoundingClientRect()
-      this.width = rect.width
-      this.height = rect.height
 
       // Scale canvas for high DPI
       canvas.width = this.width * this.dpr
       canvas.height = this.height * this.dpr
+
       this.ctx?.scale(this.dpr, this.dpr)
     }
   }

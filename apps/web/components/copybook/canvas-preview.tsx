@@ -173,8 +173,12 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
   }, [engine, chars, pageNumber, totalPages, settings, strokeDataMap])
 
   return (
-    <div className="mx-auto bg-white shadow-xl aspect-[210/297] w-full max-w-[794px] relative mb-4 lg:mb-8 last:mb-0 print-page-break">
-      <canvas ref={canvasRef} className="copybook-page-canvas block w-full h-auto" width={794} height={1123} />
+    <div className="mx-auto bg-white shadow-xl aspect-[210/297] w-full max-w-[794px] relative mb-4 lg:mb-8 last:mb-0 print-page-break overflow-hidden">
+      <canvas
+        ref={canvasRef}
+        className="copybook-page-canvas block w-full h-auto"
+        style={{ width: '100%', height: 'auto' }}
+      />
     </div>
   )
 }
