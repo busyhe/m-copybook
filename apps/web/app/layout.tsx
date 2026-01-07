@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import '@workspace/ui/globals.css'
 import { Providers } from '@/components/providers'
-import { fontSans, fontMono } from '@/lib/fonts'
+import { fontSans, fontMono, fontPinyin } from '@/lib/fonts'
 import { siteConfig } from '@/config/site'
 
 export const metadata: Metadata = {
@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}>
+      <body className={`${fontSans.variable} ${fontMono.variable} ${fontPinyin.variable} font-sans antialiased `}>
         <Providers>{children}</Providers>
       </body>
     </html>

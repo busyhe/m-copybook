@@ -4,6 +4,7 @@ import { useCopybookStore } from '@/hooks/use-copybook-store'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
 import { ChevronDown } from 'lucide-react'
+import { fontPinyin } from '@/lib/fonts'
 
 export function TextInput() {
   const { inputText, setInputText, characters, setPinyin } = useCopybookStore()
@@ -18,7 +19,12 @@ export function TextInput() {
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="text-sm text-gray-500 hover:text-primary flex items-center gap-0.5 cursor-pointer">
-                      {char.selectedPinyin}
+                      <div
+                        className="text-xs text-muted-foreground mb-1 h-4 flex items-center justify-center"
+                        style={{ fontFamily: fontPinyin.style.fontFamily }}
+                      >
+                        {char.selectedPinyin || '\u00A0'}
+                      </div>
                       <ChevronDown className="size-3" />
                     </button>
                   </PopoverTrigger>

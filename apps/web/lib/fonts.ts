@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 
 export const fontSans = Geist({
   subsets: ['latin'],
@@ -8,4 +9,9 @@ export const fontSans = Geist({
 export const fontMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-mono'
+})
+
+export const fontPinyin = localFont({
+  src: '../assets/fonts/pinyin.woff2',
+  variable: '--font-pinyin'
 })

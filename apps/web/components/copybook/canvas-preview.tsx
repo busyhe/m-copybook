@@ -5,6 +5,7 @@ import { useCopybookStore } from '@/hooks/use-copybook-store'
 import { RenderEngine } from '@/lib/canvas/render-engine'
 import HanziWriter from 'hanzi-writer'
 import { CharacterData, CopybookSettings } from '@/types/copybook'
+import { fontPinyin } from '@/lib/fonts'
 
 interface PageCanvasProps {
   chars: CharacterData[]
@@ -93,10 +94,10 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
           const isTrace = i > 0 // Main char is 0
           engine.drawGrid(cx, localY, cellSizePx, pinyinHeightPx, 'pinyin')
           if (charData.selectedPinyin) {
-            engine.drawText(charData.selectedPinyin, cx, localY, cellSizePx, pinyinHeightPx, {
+            engine.drawText(charData.selectedPinyin, cx, localY - 2, cellSizePx, pinyinHeightPx, {
               color: isTrace ? '#97A2B6' : '#000000',
               fontSize: cellSizePx * 0.3,
-              fontFamily: 'Arial'
+              fontFamily: fontPinyin.style.fontFamily
             })
           }
         }
