@@ -64,16 +64,15 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
     let currentY = mt + vOffset
     const startX = ml + hOffset
 
-    // 2. Draw active characters
-    chars.forEach((charData) => {
-      let localY = currentY
+    const drawRow = (y: number, charData?: CharacterData) => {
+      let localY = y
 
       if (showStroke) {
         const maxSteps = maxCells * 2
         for (let s = 0; s < maxSteps; s++) {
           const sx = startX + s * strokeHeightPx
           engine.drawGrid(sx, localY, strokeHeightPx, strokeHeightPx, 'rect')
-          if (charData.char && strokeDataMap[charData.char]) {
+          if (charData?.char && strokeDataMap[charData.char]) {
             const strokes = strokeDataMap[charData.char]
             if (strokes && s < strokes.length) {
               const preStrokes = strokes.slice(0, s)
@@ -93,7 +92,7 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
           const cx = startX + i * cellSizePx
           const isTrace = i > 0 // Main char is 0
           engine.drawGrid(cx, localY, cellSizePx, pinyinHeightPx, 'pinyin')
-          if (charData.selectedPinyin) {
+          if (charData?.selectedPinyin) {
             engine.drawText(charData.selectedPinyin, cx, localY - 2, cellSizePx, pinyinHeightPx, {
               color: isTrace ? '#97A2B6' : '#000000',
               fontSize: cellSizePx * 0.3,
@@ -108,40 +107,30 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
         const cx = startX + i * cellSizePx
         const isTrace = i > 0
         engine.drawGrid(cx, localY, cellSizePx, cellSizePx, settings.gridType)
-        if (charData.char) {
+        if (charData?.char) {
           engine.drawText(charData.char, cx, localY, cellSizePx, cellSizePx, {
             color: isTrace ? settings.traceColor : settings.highlightFirst ? '#000000' : settings.traceColor
           })
         }
       }
+    }
 
+    // 2. Draw active characters
+    chars.forEach((charData) => {
+      drawRow(currentY, charData)
+      if (insertEmptyRow) {
+        drawRow(currentY + blockHeight)
+      }
       currentY += rowUnitHeight
     })
 
     // 3. Fill remaining rows with empty grids to stay centered
     const rowsToFill = totalPossibleRows - chars.length
     for (let r = 0; r < rowsToFill; r++) {
-      let localFillY = currentY
-
-      if (showStroke) {
-        const maxSteps = maxCells * 2
-        for (let s = 0; s < maxSteps; s++) {
-          engine.drawGrid(startX + s * strokeHeightPx, localFillY, strokeHeightPx, strokeHeightPx, 'rect')
-        }
-        localFillY += strokeHeightPx
+      drawRow(currentY)
+      if (insertEmptyRow) {
+        drawRow(currentY + blockHeight)
       }
-
-      if (showPinyin) {
-        for (let i = 0; i < maxCells; i++) {
-          engine.drawGrid(startX + i * cellSizePx, localFillY, cellSizePx, pinyinHeightPx, 'pinyin')
-        }
-        localFillY += pinyinHeightPx
-      }
-
-      for (let i = 0; i < maxCells; i++) {
-        engine.drawGrid(startX + i * cellSizePx, localFillY, cellSizePx, cellSizePx, settings.gridType)
-      }
-
       currentY += rowUnitHeight
     }
 
