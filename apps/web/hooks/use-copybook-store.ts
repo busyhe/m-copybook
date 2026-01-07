@@ -1,6 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { pinyin } from 'pinyin-pro'
 import { CopybookSettings, CharacterData, defaultSettings } from '@/types/copybook'
 
@@ -52,24 +53,31 @@ function parseText(text: string): CharacterData[] {
   return chars
 }
 
-export const useCopybookStore = create<CopybookStore>((set) => ({
-  settings: defaultSettings,
-  inputText: '你好世界，我爱中华人民共和国',
-  characters: parseText('你好世界，我爱中华人民共和国'),
+export const useCopybookStore = create<CopybookStore>()(
+  persist(
+    (set) => ({
+      settings: defaultSettings,
+      inputText: '你好世界，我爱中华人民共和国',
+      characters: parseText('你好世界，我爱中华人民共和国'),
 
-  setSettings: (newSettings) =>
-    set((state) => ({
-      settings: { ...state.settings, ...newSettings }
-    })),
+      setSettings: (newSettings) =>
+        set((state) => ({
+          settings: { ...state.settings, ...newSettings }
+        })),
 
-  setInputText: (text) =>
-    set(() => ({
-      inputText: text,
-      characters: parseText(text)
-    })),
+      setInputText: (text) =>
+        set(() => ({
+          inputText: text,
+          characters: parseText(text)
+        })),
 
-  setPinyin: (charIndex, selectedPinyin) =>
-    set((state) => ({
-      characters: state.characters.map((char, idx) => (idx === charIndex ? { ...char, selectedPinyin } : char))
-    }))
-}))
+      setPinyin: (charIndex, selectedPinyin) =>
+        set((state) => ({
+          characters: state.characters.map((char, idx) => (idx === charIndex ? { ...char, selectedPinyin } : char))
+        }))
+    }),
+    {
+      name: 'm-copybook-storage'
+    }
+  )
+)
