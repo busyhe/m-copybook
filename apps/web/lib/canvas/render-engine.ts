@@ -2,29 +2,27 @@ import { CopybookSettings } from '@/types/copybook'
 import HanziWriter from 'hanzi-writer'
 
 export class RenderEngine {
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D | null = null
   settings: CopybookSettings
-  width: number
-  height: number
-  dpr: number
+  width: number = 794 // Default A4 width at 96DPI
+  height: number = 1123 // Default A4 height
+  dpr: number = 1
 
-  constructor(canvas: HTMLCanvasElement, settings: CopybookSettings) {
-    this.ctx = canvas.getContext('2d')!
-    this.dpr = window.devicePixelRatio || 1
+  constructor(canvas: HTMLCanvasElement | null, settings: CopybookSettings) {
     this.settings = settings
+    this.dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1
 
-    // Default A4 size at 96 DPI (approx) or purely proportional
-    // A4 is 210mm x 297mm.
-    // We will use a high resolution for internal rendering (e.g. 2x or 3x)
-    // For now, we rely on the canvas dimensions passed in
-    const rect = canvas.getBoundingClientRect()
-    this.width = rect.width
-    this.height = rect.height
+    if (canvas) {
+      this.ctx = canvas.getContext('2d')
+      const rect = canvas.getBoundingClientRect()
+      this.width = rect.width
+      this.height = rect.height
 
-    // Scale canvas for high DPI
-    canvas.width = this.width * this.dpr
-    canvas.height = this.height * this.dpr
-    this.ctx.scale(this.dpr, this.dpr)
+      // Scale canvas for high DPI
+      canvas.width = this.width * this.dpr
+      canvas.height = this.height * this.dpr
+      this.ctx?.scale(this.dpr, this.dpr)
+    }
   }
 
   updateSettings(settings: CopybookSettings) {
@@ -42,6 +40,7 @@ export class RenderEngine {
   }
 
   clear() {
+    if (!this.ctx) return
     this.ctx.clearRect(0, 0, this.width, this.height)
     // Draw white background
     this.ctx.fillStyle = '#ffffff'
@@ -55,7 +54,8 @@ export class RenderEngine {
     height: number,
     type: CopybookSettings['gridType'] | 'pinyin' | 'rect'
   ) {
-    const { lineColor, borderColor = '#9ca3af' } = this.settings // Default matching tailwind slate-400 or similar
+    if (!this.ctx) return
+    const { lineColor } = this.settings
     const ctx = this.ctx
 
     ctx.save()
@@ -127,6 +127,7 @@ export class RenderEngine {
       fontSize?: number
       opacity?: number
       fontWeight?: string
+      textAlign?: 'left' | 'center' | 'right'
     } = {}
   ) {
     const {
@@ -134,9 +135,11 @@ export class RenderEngine {
       fontFamily = '楷体, KaiTi, STKaiti',
       fontSize, // If not provided, calculcate from width
       opacity = 1,
-      fontWeight = 'normal'
+      fontWeight = 'normal',
+      textAlign = 'center'
     } = options
 
+    if (!this.ctx) return
     const ctx = this.ctx
     ctx.save()
     ctx.translate(x, y)
@@ -147,17 +150,21 @@ export class RenderEngine {
     ctx.font = `${fontWeight} ${finalFontSize}px ${fontFamily}`
     ctx.fillStyle = color
     ctx.globalAlpha = opacity
-    ctx.textAlign = 'center'
+    ctx.textAlign = textAlign
     ctx.textBaseline = 'middle'
 
-    // Draw in center of the box
-    ctx.fillText(char, width / 2, height / 2)
+    // Draw in center of the box (depending on alignment)
+    let fillX = width / 2
+    if (textAlign === 'left') fillX = 0
+    if (textAlign === 'right') fillX = width
+
+    ctx.fillText(char, fillX, height / 2)
 
     ctx.restore()
   }
 
   drawStroke(strokes: string[], x: number, y: number, width: number, height: number, color: string = '#ef4444') {
-    if (!strokes || strokes.length === 0) return
+    if (!strokes || strokes.length === 0 || !this.ctx) return
 
     const ctx = this.ctx
     ctx.save()

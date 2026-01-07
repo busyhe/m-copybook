@@ -54,8 +54,8 @@ function parseText(text: string): CharacterData[] {
 
 export const useCopybookStore = create<CopybookStore>((set) => ({
   settings: defaultSettings,
-  characters: [],
-  inputText: '',
+  inputText: '你好世界，我爱中华人民共和国',
+  characters: parseText('你好世界，我爱中华人民共和国'),
 
   setSettings: (newSettings) =>
     set((state) => ({
