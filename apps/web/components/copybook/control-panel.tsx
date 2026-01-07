@@ -53,7 +53,7 @@ export function ControlPanel() {
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="flex-1 gap-2 h-10 border-slate-200">
+              <Button variant="outline" className="flex-1 gap-2 h-10">
                 <Download className="size-4" />
                 导出
               </Button>
@@ -82,7 +82,7 @@ export function ControlPanel() {
         <TextInput />
 
         {/* Settings Groups */}
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+        <div className="bg-secondary/60 rounded-lg p-6 space-y-6">
           {/* Display Controls */}
           <div className="space-y-4">
             <h3 className="font-medium text-sm text-muted-foreground">显示控制</h3>

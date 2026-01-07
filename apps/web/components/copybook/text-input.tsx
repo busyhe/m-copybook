@@ -9,7 +9,7 @@ export function TextInput() {
   const { inputText, setInputText, characters, setPinyin } = useCopybookStore()
 
   return (
-    <div className="bg-white rounded-lg p-4">
+    <div className="bg-secondary/60 rounded-lg p-4">
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-start gap-2">
           {characters.map((char, idx) => (
