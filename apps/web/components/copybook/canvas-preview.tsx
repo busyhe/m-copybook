@@ -202,8 +202,14 @@ function PageCanvas({
           const isWithinTrace = i === 0 || traceIndex <= settings.traceCount
 
           if (!isGap && isWithinTrace && charData?.selectedPinyin) {
+            const pinyinColor = isTrace
+              ? settings.traceColor
+              : settings.highlightFirst
+                ? '#000000'
+                : settings.traceColor
+
             engine.drawText(charData.selectedPinyin, cx, localY - 2, cellSizePx, pinyinHeightPx, {
-              color: isTrace ? '#97A2B6' : '#000000',
+              color: pinyinColor,
               fontSize: cellSizePx * 0.3,
               fontFamily: fontPinyin.style.fontFamily
             })

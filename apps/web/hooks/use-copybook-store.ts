@@ -15,6 +15,7 @@ interface CopybookStore {
   setSettings: (settings: Partial<CopybookSettings>) => void
   setInputText: (text: string) => void
   setPinyin: (charIndex: number, selectedPinyin: string) => void
+  resetSettings: () => void
 }
 
 // Parse text to character data with pinyin
@@ -74,6 +75,11 @@ export const useCopybookStore = create<CopybookStore>()(
       setPinyin: (charIndex, selectedPinyin) =>
         set((state) => ({
           characters: state.characters.map((char, idx) => (idx === charIndex ? { ...char, selectedPinyin } : char))
+        })),
+
+      resetSettings: () =>
+        set(() => ({
+          settings: defaultSettings
         }))
     }),
     {

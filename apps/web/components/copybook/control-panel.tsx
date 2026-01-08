@@ -7,13 +7,69 @@ import { Label } from '@workspace/ui/components/label'
 import { Switch } from '@workspace/ui/components/switch'
 import { Slider } from '@workspace/ui/components/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
-import { Printer, FileText, Image as ImageIcon, Download } from 'lucide-react'
+import { Printer, FileText, Image as ImageIcon, Download, RotateCcw } from 'lucide-react'
 import { TextInput } from './text-input'
 import { jsPDF } from 'jspdf'
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
 
+const PRESET_COLORS = [
+  { label: '书法红', value: '#ef4444' },
+  { label: '朱砂', value: '#dc2626' },
+  { label: '深灰', value: '#475569' },
+  { label: '中灰', value: '#94a3b8' },
+  { label: '浅灰', value: '#cbd5e1' },
+  { label: '纯黑', value: '#000000' },
+  { label: '玄色', value: '#1e293b' },
+  { label: '石青', value: '#0f172a' }
+]
+
+function ColorPicker({ value, onChange, label }: { value: string; onChange: (color: string) => void; label: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label>{label}</Label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            className="w-8 h-8 rounded-md border border-input shadow-sm cursor-pointer hover:ring-2 hover:ring-ring transition-all"
+            style={{ backgroundColor: value }}
+            title={`当前颜色: ${value}`}
+          />
+        </PopoverTrigger>
+        <PopoverContent className="w-48 p-3" align="end">
+          <div className="space-y-3">
+            <div className="grid grid-cols-4 gap-2">
+              {PRESET_COLORS.map((color) => (
+                <button
+                  key={color.value}
+                  className={`w-6 h-6 rounded-md border border-input transition-all hover:scale-110 active:scale-95 ${
+                    value === color.value ? 'ring-2 ring-primary ring-offset-1' : ''
+                  }`}
+                  style={{ backgroundColor: color.value }}
+                  onClick={() => onChange(color.value)}
+                  title={color.label}
+                />
+              ))}
+            </div>
+            <div className="pt-2 border-t">
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="w-6 h-6 border rounded cursor-pointer p-0 overflow-hidden"
+                />
+                <span className="text-xs text-muted-foreground font-mono uppercase">{value}</span>
+              </div>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+}
+
 export function ControlPanel() {
-  const { settings, setSettings } = useCopybookStore()
+  const { settings, setSettings, resetSettings } = useCopybookStore()
 
   const maxTraceCount = useMemo(() => {
     const { gridSize, pageMargin, insertEmptyCol } = settings
@@ -306,25 +362,30 @@ export function ControlPanel() {
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label>描红颜色</Label>
-              <input
-                type="color"
-                value={settings.traceColor}
-                onChange={(e) => setSettings({ traceColor: e.target.value })}
-                className="w-8 h-8 border rounded cursor-pointer"
-              />
-            </div>
+            <ColorPicker
+              label="描红颜色"
+              value={settings.traceColor}
+              onChange={(value) => setSettings({ traceColor: value })}
+            />
 
-            <div className="flex items-center justify-between">
-              <Label>线条颜色</Label>
-              <input
-                type="color"
-                value={settings.lineColor}
-                onChange={(e) => setSettings({ lineColor: e.target.value })}
-                className="w-8 h-8 border rounded cursor-pointer"
-              />
-            </div>
+            <ColorPicker
+              label="线条颜色"
+              value={settings.lineColor}
+              onChange={(value) => setSettings({ lineColor: value })}
+            />
+          </div>
+
+          {/* 恢复默认配置按钮 */}
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2 text-muted-foreground hover:text-destructive hover:border-destructive transition-colors"
+              onClick={resetSettings}
+            >
+              <RotateCcw className="size-3.5" />
+              恢复初始配置
+            </Button>
           </div>
         </div>
       </div>
