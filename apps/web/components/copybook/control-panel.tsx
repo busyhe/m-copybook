@@ -80,7 +80,7 @@ export function ControlPanel() {
 
   return (
     <div className="w-full lg:w-80 space-y-4 control-panel-wrapper no-print order-1 lg:order-2">
-      <div className="lg:sticky lg:top-20 space-y-4 lg:max-h-[calc(100vh-120px)] lg:overflow-auto lg:pb-10 lg:no-scrollbar">
+      <div className="lg:sticky lg:top-0 py-10 pr-6 space-y-4 lg:overflow-auto lg:pb-10 lg:no-scrollbar">
         {/* Export/Print buttons */}
         <div className="flex gap-2">
           <Popover>
