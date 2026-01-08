@@ -4,6 +4,8 @@ A modern Chinese calligraphy copybook (字帖) generator built with Next.js 15 a
 
 [中文文档](./README_zh.md)
 
+![M-Nav 示例](https://github.com/busyhe/m-copybook/blob/main/example.png)
+
 ## ✨ Features
 
 - ✍️ **Stroke Order Support** - Visualizing character stroke order using `hanzi-writer`.

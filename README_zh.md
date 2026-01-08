@@ -4,6 +4,8 @@
 
 [English Documentation](./README.md)
 
+![M-Nav 示例](https://github.com/busyhe/m-copybook/blob/main/example.png)
+
 ## ✨ 特性
 
 - ✍️ **笔顺支持** - 使用 `hanzi-writer` 可视化汉字笔顺。
