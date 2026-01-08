@@ -12,7 +12,16 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL(siteConfig.url),
   description: siteConfig.description,
-  keywords: ['Next.js', 'React'],
+  keywords: [
+    '字帖生成器',
+    '中文字帖',
+    '田字格',
+    '拼音字帖',
+    '描白',
+    '书法练习',
+    'Copybook Generator',
+    'Chinese Handwriting'
+  ],
   authors: [
     {
       name: 'busyhe',
@@ -22,7 +31,7 @@ export const metadata: Metadata = {
   creator: 'busyhe',
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'zh_CN',
     url: siteConfig.url,
     title: siteConfig.name,
     description: siteConfig.description,
@@ -46,6 +55,17 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png'
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1
+    }
   }
 }
 
@@ -54,9 +74,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    applicationCategory: 'EducationApplication',
+    operatingSystem: 'Windows, macOS, Linux, Android, iOS',
+    author: {
+      '@type': 'Person',
+      name: 'busyhe',
+      url: 'https://github.com/busyhe'
+    }
+  }
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} ${fontPinyin.variable} font-sans antialiased `}>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <Providers>{children}</Providers>
         <Analytics />
       </body>
