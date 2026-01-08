@@ -170,10 +170,12 @@ function PageCanvas({
       const { insertEmptyCol } = settings
 
       if (showStroke) {
+        const totalStrokeWidth = maxCells * 2 * strokeHeightPx
+        engine.drawGrid(startX, localY, totalStrokeWidth, strokeHeightPx, 'rect')
+
         const maxSteps = maxCells * 2
         for (let s = 0; s < maxSteps; s++) {
           const sx = startX + s * strokeHeightPx
-          engine.drawGrid(sx, localY, strokeHeightPx, strokeHeightPx, 'rect')
           if (charData?.char && strokeDataMap[charData.char]) {
             const strokes = strokeDataMap[charData.char]
             if (strokes && s < strokes.length) {
