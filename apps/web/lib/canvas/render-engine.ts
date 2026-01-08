@@ -64,10 +64,7 @@ export class RenderEngine {
     ctx.translate(x, y)
 
     // Draw box border
-    ctx.strokeStyle = '#64748b' // Slate-500 hardcoded as requested 'formal blue-grey', or use settings
-    // Actually let's use a specific color matching the image
-    const formalBorderColor = '#64748b'
-    ctx.strokeStyle = formalBorderColor
+    ctx.strokeStyle = lineColor
     ctx.lineWidth = 1
     ctx.strokeRect(0, 0, width, height)
 
@@ -96,16 +93,7 @@ export class RenderEngine {
       const py = height * 0.25
       ctx.rect(px, py, width - px * 2, height - py * 2)
     } else if (type === 'pinyin') {
-      // Pinyin: 4 horizontal lines evenly spaced?
-      // Or 4 lines defining 3 spaces.
-      // Usually heights are equivalent.
       const h3 = height / 3
-
-      ctx.beginPath()
-      ctx.strokeStyle = lineColor
-      ctx.lineWidth = 0.5
-      ctx.setLineDash([4, 2])
-
       // Pinyin lines (internal 2 lines)
       ctx.moveTo(0, h3)
       ctx.lineTo(width, h3)
