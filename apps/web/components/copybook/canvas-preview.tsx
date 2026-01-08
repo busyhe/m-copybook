@@ -6,6 +6,7 @@ import { RenderEngine } from '@/lib/canvas/render-engine'
 import HanziWriter from 'hanzi-writer'
 import { CharacterData, CopybookSettings } from '@/types/copybook'
 import { fontPinyin } from '@/lib/fonts'
+import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover'
 
 interface PageCanvasProps {
   chars: CharacterData[]
@@ -13,11 +14,111 @@ interface PageCanvasProps {
   totalPages: number
   settings: CopybookSettings
   strokeDataMap: Record<string, string[]>
+  charStartIndex: number
+  setPinyin: (index: number, pinyin: string) => void
 }
 
-function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: PageCanvasProps) {
+function PageCanvas({
+  chars,
+  pageNumber,
+  totalPages,
+  settings,
+  strokeDataMap,
+  charStartIndex,
+  setPinyin
+}: PageCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [engine, setEngine] = useState<RenderEngine | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+
+  // Track container size for overlay positioning
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const updateSize = () => {
+      setContainerSize({ width: container.clientWidth, height: container.clientHeight })
+    }
+    updateSize()
+
+    const observer = new ResizeObserver(updateSize)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  // Calculate pinyin cell positions for overlay using useMemo
+  const pinyinPositions = useMemo(() => {
+    if (!engine || !settings.showPinyin || containerSize.width === 0) {
+      return []
+    }
+
+    const { gridSize, rowSpacing, pageMargin, showPinyin, showStroke, insertEmptyRow } = settings
+    const mt = engine.mmToPx(pageMargin[0])
+    const mb = engine.mmToPx(pageMargin[2])
+    const ml = engine.mmToPx(pageMargin[3])
+    const cellSizePx = engine.mmToPx(gridSize)
+    const rowSpacingPx = engine.mmToPx(rowSpacing)
+    const contentWidthMm = 210 - pageMargin[1] - pageMargin[3]
+    const contentWidthPx = engine.mmToPx(contentWidthMm)
+    const maxCells = Math.floor(contentWidthPx / cellSizePx)
+
+    const totalRowWidth = maxCells * cellSizePx
+    const hOffset = (contentWidthPx - totalRowWidth) / 2
+
+    const pinyinHeightPx = cellSizePx * 0.5
+    const strokeHeightPx = cellSizePx * 0.5
+
+    let blockHeight = cellSizePx
+    if (showPinyin) blockHeight += pinyinHeightPx
+    if (showStroke) blockHeight += strokeHeightPx
+    blockHeight += rowSpacingPx
+    const rowUnitHeight = insertEmptyRow ? blockHeight * 2 : blockHeight
+
+    const availableHeightPx = engine.mmToPx(297) - mt - mb
+    const totalPossibleRows = Math.floor(availableHeightPx / rowUnitHeight)
+    const totalGridHeight = totalPossibleRows * rowUnitHeight
+    const vOffset = (availableHeightPx - totalGridHeight) / 2
+
+    const startX = ml + hOffset
+    const canvasWidth = engine.mmToPx(210)
+    const canvasHeight = engine.mmToPx(297)
+
+    const positions: Array<{
+      x: number
+      y: number
+      width: number
+      height: number
+      charIndex: number
+      pinyinOptions: string[]
+      selectedPinyin: string
+    }> = []
+
+    chars.forEach((charData, localIdx) => {
+      if (charData.pinyin.length <= 1) return
+
+      let localY = mt + vOffset + localIdx * rowUnitHeight
+      if (showStroke) localY += strokeHeightPx
+
+      const cx = startX
+      const pinyinX = (cx / canvasWidth) * containerSize.width
+      const pinyinY = (localY / canvasHeight) * containerSize.height
+      const pinyinW = (cellSizePx / canvasWidth) * containerSize.width
+      const pinyinH = (pinyinHeightPx / canvasHeight) * containerSize.height
+
+      positions.push({
+        x: pinyinX,
+        y: pinyinY,
+        width: pinyinW,
+        height: pinyinH,
+        charIndex: charStartIndex + localIdx,
+        pinyinOptions: charData.pinyin,
+        selectedPinyin: charData.selectedPinyin
+      })
+    })
+
+    return positions
+  }, [engine, chars, settings, charStartIndex, containerSize])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -173,12 +274,47 @@ function PageCanvas({ chars, pageNumber, totalPages, settings, strokeDataMap }: 
   }, [engine, chars, pageNumber, totalPages, settings, strokeDataMap])
 
   return (
-    <div className="mx-auto bg-white shadow-xl aspect-[210/297] w-full max-w-[794px] relative mb-4 lg:mb-8 last:mb-0 print-page-break overflow-hidden">
+    <div
+      ref={containerRef}
+      className="mx-auto bg-white shadow-xl aspect-[210/297] w-full max-w-[794px] relative mb-4 lg:mb-8 last:mb-0 print-page-break overflow-hidden"
+    >
       <canvas
         ref={canvasRef}
         className="copybook-page-canvas block w-full h-auto"
         style={{ width: '100%', height: 'auto' }}
       />
+      {/* Polyphone selection overlay */}
+      {pinyinPositions.map((pos) => (
+        <Popover key={pos.charIndex}>
+          <PopoverTrigger asChild>
+            <button
+              className="absolute cursor-pointer bg-primary/10 hover:bg-primary/20 border border-transparent hover:border-primary/30 rounded transition-colors"
+              style={{
+                left: pos.x,
+                top: pos.y,
+                width: pos.width,
+                height: pos.height
+              }}
+              title="点击选择多音字读音"
+            />
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-1" align="start">
+            <div className="space-y-1">
+              {pos.pinyinOptions.map((py) => (
+                <button
+                  key={py}
+                  className={`block w-full text-left px-2 py-1 text-sm rounded hover:bg-accent ${
+                    py === pos.selectedPinyin ? 'bg-accent' : ''
+                  }`}
+                  onClick={() => setPinyin(pos.charIndex, py)}
+                >
+                  {py}
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      ))}
     </div>
   )
 }
@@ -187,7 +323,7 @@ export function CopybookPreview() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [strokeDataMap, setStrokeDataMap] = useState<Record<string, string[]>>({})
 
-  const { settings, characters } = useCopybookStore()
+  const { settings, characters, setPinyin } = useCopybookStore()
 
   // 1. Data Loading
   useEffect(() => {
@@ -267,16 +403,22 @@ export function CopybookPreview() {
   return (
     <div className="flex-1 overflow-auto bg-slate-100/50 p-10 min-h-0 custom-scrollbar preview-container">
       <div ref={containerRef} className="flex flex-col items-center">
-        {pages.map((pageChars: CharacterData[], idx: number) => (
-          <PageCanvas
-            key={idx}
-            chars={pageChars}
-            pageNumber={idx + 1}
-            totalPages={pages.length}
-            settings={settings}
-            strokeDataMap={strokeDataMap}
-          />
-        ))}
+        {pages.map((pageChars: CharacterData[], idx: number) => {
+          // Calculate the start index for this page
+          const charStartIndex = pages.slice(0, idx).reduce((acc, p) => acc + p.length, 0)
+          return (
+            <PageCanvas
+              key={idx}
+              chars={pageChars}
+              pageNumber={idx + 1}
+              totalPages={pages.length}
+              settings={settings}
+              strokeDataMap={strokeDataMap}
+              charStartIndex={charStartIndex}
+              setPinyin={setPinyin}
+            />
+          )
+        })}
       </div>
     </div>
   )

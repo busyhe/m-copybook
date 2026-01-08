@@ -57,8 +57,8 @@ export const useCopybookStore = create<CopybookStore>()(
   persist(
     (set) => ({
       settings: defaultSettings,
-      inputText: '你好世界，我爱中华人民共和国',
-      characters: parseText('你好世界，我爱中华人民共和国'),
+      inputText: '你好世界',
+      characters: parseText('你好世界'),
 
       setSettings: (newSettings) =>
         set((state) => ({
